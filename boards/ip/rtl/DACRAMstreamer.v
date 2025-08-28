@@ -39,20 +39,25 @@ module DACRAMstreamer #( parameter DWIDTH = 256, parameter MEM_SIZE_BYTES = 1310
 
   // Control Input Parameters
   input  [$clog2(MEM_SIZE_BYTES/(DWIDTH/8))-1:0] numSampleVectors,
-  input                    enable );
-
+  input                    enable,
+  output reg               sync_pulse );
+  
   reg [$clog2(MEM_SIZE_BYTES/(DWIDTH/8))-1:0] vcnt;
   wire [31:0] ramAddressLimit;
+  
+  
+
   
   assign portA_cpu_wdata = 0;
   assign portA_clk       = axis_clk;
   assign portA_rst       = ~axis_aresetn;
   assign portA_we        = 0;
-  assign ramAddressLimit = (MEM_SIZE_BYTES / (DWIDTH/8))-1;
+  assign ramAddressLimit = MEM_SIZE_BYTES - (DWIDTH/8); // e.g., 131072 - 32 = 131040
+  
   
   always @(posedge axis_clk) begin
     axis_tdata <= portA_cpu_rdata;
-
+    sync_pulse <= enable && (portAcpu_addr == 0) && axis_aresetn; // one-cycle by design
     if (~axis_aresetn) begin
   	  axis_tvalid <= 0;
   	end else begin
