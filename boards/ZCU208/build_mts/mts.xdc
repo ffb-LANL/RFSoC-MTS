@@ -58,7 +58,39 @@ set_property PACKAGE_PIN E6       [get_ports "DACIO_14"] ;# Bank  87 VCCO - VCC1
 set_property IOSTANDARD  LVCMOS18 [get_ports "DACIO_14"] ;# Bank  87 VCCO - VCC1V8   - IO_L1N_AD15N_87
 set_property PACKAGE_PIN F6       [get_ports "DACIO_15"] ;# Bank  87 VCCO - VCC1V8   - IO_L1P_AD15P_87
 set_property IOSTANDARD  LVCMOS18 [get_ports "DACIO_15"] ;# Bank  87 VCCO - VCC1V8   - IO_L1P_AD15P_87
-
+set_property PACKAGE_PIN AP5      [get_ports "ADCIO_00"] ;# Bank  84 VCCO - VCC1V8   - IO_L12N_AD0N_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_00"] ;# Bank  84 VCCO - VCC1V8   - IO_L12N_AD0N_84
+set_property SLEW FAST            [get_ports "ADCIO_00"]
+set_property PULLDOWN TRUE        [get_ports "ADCIO_00"]
+set_property PACKAGE_PIN AP6      [get_ports "ADCIO_01"] ;# Bank  84 VCCO - VCC1V8   - IO_L12P_AD0P_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_01"] ;# Bank  84 VCCO - VCC1V8   - IO_L12P_AD0P_84
+set_property SLEW FAST            [get_ports "ADCIO_01"]
+set_property PACKAGE_PIN AR6      [get_ports "ADCIO_02"] ;# Bank  84 VCCO - VCC1V8   - IO_L11N_AD1N_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_02"] ;# Bank  84 VCCO - VCC1V8   - IO_L11N_AD1N_84
+set_property SLEW FAST            [get_ports "ADCIO_02"]
+set_property PACKAGE_PIN AR7      [get_ports "ADCIO_03"] ;# Bank  84 VCCO - VCC1V8   - IO_L11P_AD1P_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_03"] ;# Bank  84 VCCO - VCC1V8   - IO_L11P_AD1P_84
+set_property SLEW FAST            [get_ports "ADCIO_03"]
+set_property PACKAGE_PIN AV7      [get_ports "ADCIO_04"] ;# Bank  84 VCCO - VCC1V8   - IO_L10N_AD2N_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_04"] ;# Bank  84 VCCO - VCC1V8   - IO_L10N_AD2N_84
+set_property SLEW FAST            [get_ports "ADCIO_04"]
+set_property PACKAGE_PIN AU7      [get_ports "ADCIO_05"] ;# Bank  84 VCCO - VCC1V8   - IO_L10P_AD2P_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_05"] ;# Bank  84 VCCO - VCC1V8   - IO_L10P_AD2P_84
+set_property SLEW FAST            [get_ports "ADCIO_05"]
+set_property PACKAGE_PIN AV8      [get_ports "ADCIO_06"] ;# Bank  84 VCCO - VCC1V8   - IO_L9N_AD3N_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_06"] ;# Bank  84 VCCO - VCC1V8   - IO_L9N_AD3N_84
+set_property SLEW FAST            [get_ports "ADCIO_06"]
+set_property PACKAGE_PIN AU8      [get_ports "ADCIO_07"] ;# Bank  84 VCCO - VCC1V8   - IO_L9P_AD3P_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_07"] ;# Bank  84 VCCO - VCC1V8   - IO_L9P_AD3P_84
+set_property SLEW FAST            [get_ports "ADCIO_07"]
+set_property PACKAGE_PIN AT6      [get_ports "ADCIO_08"] ;# Bank  84 VCCO - VCC1V8   - IO_L8N_HDGC_AD4N_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_08"] ;# Bank  84 VCCO - VCC1V8   - IO_L8N_HDGC_AD4N_84
+set_property PACKAGE_PIN AT7      [get_ports "ADCIO_09"] ;# Bank  84 VCCO - VCC1V8   - IO_L8P_HDGC_AD4P_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_09"] ;# Bank  84 VCCO - VCC1V8   - IO_L8P_HDGC_AD4P_84
+set_property PACKAGE_PIN AU5      [get_ports "ADCIO_10"] ;# Bank  84 VCCO - VCC1V8   - IO_L7N_HDGC_AD5N_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_10"] ;# Bank  84 VCCO - VCC1V8   - IO_L7N_HDGC_AD5N_84
+set_property PACKAGE_PIN AT5      [get_ports "ADCIO_11"] ;# Bank  84 VCCO - VCC1V8   - IO_L7P_HDGC_AD5P_84
+set_property IOSTANDARD  LVCMOS18 [get_ports "ADCIO_11"] ;# Bank  84 VCCO - VCC1V8   - IO_L7P_HDGC_AD5P_84
 
 # -------------- -------------- -------------- -------------- -------------- -------------- -------
 # Synthesis Guidance
