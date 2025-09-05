@@ -59,6 +59,29 @@ proc _ensure_hier_pin {hier name dir args} {
     current_bd_instance $saveInst
   }
 }
+# Pick whichever XPM CDC IP is available in this Vivado install and create it.
+proc _ensure_cdc_auto {path cdc_type param_dict} {
+  # Already created? nothing to do.
+  if {[llength [get_bd_cells -quiet $path]]} { return }
+
+  # Probe for either VLNV
+  set cdc_vlnv ""
+  foreach v {xilinx.com:ip:xpm_cdc:1.0 xilinx.com:ip:xpm_cdc_gen:1.0} {
+    if {[llength [get_ipdefs -all -quiet $v]]} { set cdc_vlnv $v; break }
+  }
+  if {$cdc_vlnv eq ""} {
+    error "XPM CDC IP not found (neither xilinx.com:ip:xpm_cdc:1.0 nor xpm_cdc_gen:1.0). \
+Try 'update_ip_catalog -rebuild', or install the XPM CDC IP, or switch to an RTL synchronizer."
+  }
+
+  create_bd_cell -type ip -vlnv $cdc_vlnv $path
+  # CDC_TYPE exists on both variants; apply params best-effort
+  catch { set_property -dict [list CONFIG.CDC_TYPE $cdc_type] [get_bd_cells $path] }
+  if {[llength $param_dict]} {
+    catch { set_property -dict $param_dict [get_bd_cells $path] }
+  }
+}
+
 proc _connect {args} { catch { connect_bd_net -quiet {*}$args } }
 proc _connect_intf {a b} { catch { connect_bd_intf_net -quiet $a $b } }
 proc _disconnect_pin {pin} { catch { disconnect_bd_net [get_bd_pins -quiet $pin] } }
@@ -76,6 +99,50 @@ if {[lsearch -exact $bds $BD_NAME] >= 0} {
   error "Multiple BDs found. Set BD_NAME at top of patch_merged.tcl (e.g., set BD_NAME mts)."
 }
 current_bd_instance [get_bd_cells /]
+
+# --- Ensure trigger_core.v is in project sources (mts.tcl-style) ---
+
+# Make sure sources_1 exists
+if {[string equal [get_filesets -quiet sources_1] ""]} {
+  create_fileset -srcset sources_1
+}
+set _srcset [get_filesets sources_1]
+
+# Resolve the directory this script lives in
+set _patch_dir [file normalize [file dirname [info script]]]
+if {$_patch_dir eq ""} { set _patch_dir [pwd] }
+
+# Candidate locations (edit/extend if needed)
+set _trig_candidates [list \
+  [file normalize "$_patch_dir/../../ip/rtl/trigger_core.v"] \
+  [file normalize "$_patch_dir/trigger_core.v"] \
+]
+
+# Optional override:
+#   set ::TRIGGER_CORE_FILE "D:/path/to/trigger_core.v"
+if {[info exists ::TRIGGER_CORE_FILE]} {
+  set _trig_candidates [linsert $_trig_candidates 0 [file normalize $::TRIGGER_CORE_FILE]]
+}
+
+# Pick the first that exists and import if not already present
+set _trig_file ""
+foreach _cand $_trig_candidates {
+  if {[file isfile $_cand]} { set _trig_file $_cand; break }
+}
+
+if {[llength [get_files -quiet *trigger_core.v]] == 0} {
+  if {$_trig_file ne ""} {
+    import_files -quiet -fileset $_srcset $_trig_file
+    puts "INFO: Imported trigger_core.v from $_trig_file"
+  } else {
+    puts "WARNING: trigger_core.v not found. Set ::TRIGGER_CORE_FILE and re-source."
+  }
+}
+
+# Sanity: can Vivado resolve the module name?
+if {[can_resolve_reference trigger_core] == 0} {
+  puts "ERROR: trigger_core module unresolved. Ensure trigger_core.v is in sources_1."
+}
 
 # ==========================================================
 # PATHS YOU MAY NEED TO EDIT (match your BD instance names)
@@ -235,14 +302,14 @@ _ensure_port ADCIO_00 I -type data
 
 # 4) trig_sync CDC: SINGLE (PL->PL)
 set TRIG_SYNC /trig_sync
-_ensure_cdc $TRIG_SYNC xpm_cdc_single [list CONFIG.DEST_SYNC_FF {3} CONFIG.SRC_INPUT_REG {false} CONFIG.INIT_SYNC_FF {false} CONFIG.WIDTH {1}]
+_ensure_cdc_auto $TRIG_SYNC xpm_cdc_single [list CONFIG.DEST_SYNC_FF {3} CONFIG.SRC_INPUT_REG {false} CONFIG.INIT_SYNC_FF {false} CONFIG.WIDTH {1}]
 _connect [get_bd_pins $PL_CLK] [get_bd_pins $TRIG_SYNC/src_clk]
 _connect [get_bd_pins $PL_CLK] [get_bd_pins $TRIG_SYNC/dest_clk]
 _connect [get_bd_ports ADCIO_00] [get_bd_pins $TRIG_SYNC/src_in]
 
 # 5) FIFO_cdc CDC: ASYNC_RST active-low (PL -> RF stream)
 set FIFO_CDC /FIFO_cdc
-_ensure_cdc $FIFO_CDC xpm_cdc_async_rst [list CONFIG.DEST_SYNC_FF {3} CONFIG.RST_ACTIVE_HIGH {false}]
+_ensure_cdc_auto $FIFO_CDC xpm_cdc_async_rst [list CONFIG.DEST_SYNC_FF {3} CONFIG.RST_ACTIVE_HIGH {false}]
 # dest clock: RF axis clock if present, else deepCapture s_axis_aclk
 if {[_exists "get_bd_pins -quiet $RF_AXIS_CLK_PIN"]} {
   _connect [get_bd_pins $RF_AXIS_CLK_PIN] [get_bd_pins $FIFO_CDC/dest_clk]
